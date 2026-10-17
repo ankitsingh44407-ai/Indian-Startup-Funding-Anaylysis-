@@ -1,13 +1,17 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+df = pd.read_csv(BASE_DIR / "cleared_data_strmlt")
 
 st.set_page_config(page_title='startup anyalysis') 
 
-df = pd.read_csv('cleared_data_strmlt')
+df = pd.read_csv(BASE_DIR/'cleared_data_strmlt')
 df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
-clear_df = pd.read_csv('cleared_data_strmlt')
+clear_df = pd.read_csv(BASE_DIR/'cleared_data_strmlt')
 clear_df['date'] = pd.to_datetime(clear_df['date'])
 clear_df['year'] = clear_df['date'].dt.year
 clear_df['month'] = clear_df['date'].dt.month
