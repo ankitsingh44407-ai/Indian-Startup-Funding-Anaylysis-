@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title='startup anyalysis') 
 
-df = pd.read_csv('D:\\Data_science\\startup_dashboard\\cleared_data_strmlt')
+df = pd.read_csv('cleared_data_strmlt')
 df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
-clear_df = pd.read_csv('D:\\Data_science\\startup_dashboard\\cleared_data_strmlt')
+clear_df = pd.read_csv('cleared_data_strmlt')
 clear_df['date'] = pd.to_datetime(clear_df['date'])
 clear_df['year'] = clear_df['date'].dt.year
 clear_df['month'] = clear_df['date'].dt.month
