@@ -51,6 +51,107 @@ clear_df['investment'] = clear_df['investment'].replace({
     'Equity Based Funding': 'Equity Funding'
 })
 
+# startup anaylysis 
+
+def load_startup_anaylysis(selected_startup,df):
+    startup_df = df[df['startup'] == selected_startup]
+    
+    # company deatails 
+
+    st.subheader('Company Profile')
+    industry = startup_df['verticle'].dropna()
+    subindustry = startup_df['SubVertical'].dropna()
+    location = startup_df['city'].dropna()
+
+    industry = industry.iloc[0] if not industry.empty else 'Not Available'
+    subindustry = subindustry.iloc[0] if not subindustry.empty else 'Not Available'
+    location = location.iloc[0] if not location.empty else 'Not Available'
+
+    st.header(selected_startup)
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.markdown('**Industry**')
+    col1.write(industry)
+
+    col2.markdown('**Subindustry**')
+    col2.write(subindustry)
+
+    col3.markdown('**Location**')
+    col3.write(location)
+
+
+
+    # Funding Summary
+    st.subheader('Funding Summary')
+
+    total_funding = startup_df['amount'].sum()
+    total_rounds = startup_df['investment'].count()
+    avg_funding = startup_df['amount'].mean()
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric('Total Funding', f'₹{total_funding:.2f} Cr')
+    col2.metric('Funding Rounds', total_rounds)
+    col3.metric('Average Funding', f'₹{avg_funding:.2f} Cr')
+
+
+    # funding history
+    st.subheader('Funding History')
+
+    funding_history = startup_df[['investment', 'investors', 'date', 'amount']].copy()
+    funding_history['date'] = pd.to_datetime(funding_history['date'], errors='coerce')
+    funding_history = funding_history.sort_values('date', ascending=True, na_position='last')
+    st.dataframe(funding_history, hide_index=True)
+
+
+    # similar startup 
+    st.subheader('Similar Companies')
+
+    industry_values = startup_df['verticle'].dropna()
+
+    if not industry_values.empty:
+
+        industry = industry_values.iloc[0]
+
+        similar_companies = df[
+            (df['verticle'] == industry) &
+            (df['startup'] != selected_startup)
+        ]
+
+        similar_summary = (similar_companies.groupby('startup').agg(
+                Industry=('verticle', 'first'),
+                Location=('city', 'first'),
+                Total_Funding=('amount', 'sum')
+            )
+            .sort_values('Total_Funding', ascending=False)
+            .head(10)
+            .reset_index()
+        )
+
+        st.dataframe(similar_summary, hide_index=True)
+
+    else:
+        st.info('Industry information is not available for this startup.')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # overall anylysys 
@@ -260,10 +361,11 @@ if option == 'Overall anylysis':
 
 
 elif option == 'Startup':
-    st.sidebar.selectbox('Select Startup',sorted(df['startup'].unique().tolist()))
+    selected_startup = st.sidebar.selectbox('Select Startup',sorted(df['startup'].unique().tolist()))
     st.title('Startup Anylysis')
     btn1 = st.sidebar.button('Find Startup Detail ')
-
+    if btn1:
+        load_startup_anaylysis(selected_startup,df)
 
 else: # {investor}
     selected_investor = st.sidebar.selectbox('Investor',sorted(set(df['investors'].str.split(',')
